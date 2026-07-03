@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <link class="pwa-manifest" rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5PV1NISU5UViBBRE1JTiIsCiAgInNob3J0X25hbWUiOiAiTk9XU0hJTlRWIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjE3MmEiLAogICJ0aGVtZV9jb2xvciI6ICIjMGYxNzJhIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9pLnBvc3RpbWcuY2MvMTNCMmd3QkIvZmlsZS0wMDAwMDAwMDQ3NDg3MjA3OThjMmJmZWZiMTNhMDY4NS5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=">
+    <link class="pwa-manifest" rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5PV1NISU5UViBBRE1JTiIsCiAgInNob3J0X25hbWUiOiAiTk9XU0hJTlRWIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjE3MmEiLAogICJ0aGVtZV9jb2xvciI6ICIjMGYxNzJhIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9pLnBvc3RpbWcuY2MvMTNCMmd3QkIvZmlsZS0wMDAwMDAwMDQ3NDg3MjA3OThjMmJmZWZiMTNhMDY4NS5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXMaskYWJsZSIKICAgIH0KICBdCn0=">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/13B2gwBB/file-000000004748720798c2bfefb13a0685.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -221,7 +221,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             renderLoadingSkeleton();
-            fetchChannels(true); // অ্যাপ ওপেন হতেই ১ সেকেন্ডে ডাটা লোড হবে + ব্যাকগ্রাউন্ডে ব্যাচ সিঙ্ক অন হবে
+            fetchChannels(); // অ্যাপ ওপেন হতেই ইনস্ট্যান্টলি ফ্রেশ ডাটা লোড হবে, কোনো ব্যাকগ্রাউন্ড জ্যাম থাকবে না
             updateActiveTickmark();
         });
 
@@ -253,43 +253,41 @@
             tbody.innerHTML = rows; mobileWrapper.innerHTML = cards;
         }
 
-        async function fetchChannels(triggerAutoSync = false) {
+        async function fetchChannels() {
             try {
                 const response = await fetch(`${API_URL}?action=getChannels`);
                 const result = await response.json();
                 if (result.status === 'success') {
                     allChannels = result.data;
                     updateDashboard();
-                    if(triggerAutoSync) {
-                        // ৮-৯ মিনিট লোডিং আটকাতে এটি এখন "স্মার্ট ব্যাচ ওয়াইজ" ব্যাকগ্রাউন্ডে কাজ করবে
-                        startBatchSyncBackground();
-                    }
                 }
             } catch (error) { console.error('API Error'); }
         }
 
-        // 🔵 আল্ট্রা-ফাস্ট ব্যাচ সিঙ্কিং প্রসেস (ড্যাশবোর্ড ব্যবহারের কোনো সমস্যা হবে না)
-        async function startBatchSyncBackground() {
+        // 🟢 ম্যানুয়াল সিঙ্ক অপারেশন (বাটনে ক্লিক করলেই কেবল ১ বার রান হবে)
+        async function syncStatus() {
             const icon = document.getElementById('syncIcon');
             const syncText = document.getElementById('syncText');
+            
             if(icon) icon.classList.add('animate-spin');
-            
-            let total = allChannels.length;
-            let batchSize = 5; // প্রতিবারে মাত্র ৫টি করে চ্যানেল ব্যাকগ্রাউন্ডে সিঙ্ক হবে
-            
-            for(let i = 0; i < total; i += batchSize) {
-                if(syncText) syncText.innerText = `Syncing (${i}/${total})`;
-                try {
-                    await fetch(API_URL, { 
-                        method: 'POST', 
-                        body: JSON.stringify({ action: 'syncStatus', startIndex: i, batchSize: batchSize }) 
-                    });
-                } catch (e) { console.log('Batch sync buffer bypassed.'); }
+            if(syncText) syncText.innerText = "Syncing Status...";
+
+            try {
+                const response = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'syncStatus' }) 
+                });
+                const res = await response.json();
+                if(res.status === 'success') {
+                    await fetchChannels(); // সিঙ্ক শেষে লেটেস্ট স্ট্যাটাস ডাটা রিলোড করবে
+                }
+            } catch (e) { 
+                console.error('Manual sync failed:', e);
+                alert('Sync process timed out or failed. Please check Google Sheet Connection.');
+            } finally {
+                if(syncText) syncText.innerText = "Sync Status";
+                if(icon) icon.classList.remove('animate-spin');
             }
-            
-            if(syncText) syncText.innerText = "Sync Status";
-            if(icon) icon.classList.remove('animate-spin');
-            fetchChannels(false); // সিঙ্ক কমপ্লিট হলে ফাইনাল আপডেট রিফ্রেশ
         }
 
         function updateDashboard() {
@@ -417,12 +415,12 @@
                 const res = await response.json();
                 if(res.status === 'success') {
                     closeModal();
-                    // 🟢 ইনস্ট্যান্ট সিঙ্গেল ভ্যালিডেশন সিস্টেম: সেভ হওয়ার সাথে সাথে শুধু এই ১টি চ্যানেলকে রিয়েলটাইম চেক করবে
+                    // সিঙ্গেল চ্যানেল ইনস্ট্যান্ট ভ্যালিডেশন 
                     await fetch(API_URL, {
                         method: 'POST',
                         body: JSON.stringify({ action: 'syncStatus', targetId: targetSerial })
                     });
-                    await fetchChannels(false);
+                    await fetchChannels();
                 }
             } catch (error) { alert('Operation Failed'); }
             btn.disabled = false; btn.innerText = "Save Configuration";
@@ -459,11 +457,6 @@
                     updateDashboard();
                 }
             } catch (error) { alert('Delete Action Failed'); }
-        }
-
-        async function syncStatus() {
-            // ম্যানুয়ালি ক্লিক করলেও এটি এখন স্মার্ট ব্যাচ সিঙ্ক রান করবে
-            startBatchSyncBackground();
         }
 
         function searchChannelsAll() {
