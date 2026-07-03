@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOWSHINTV ADMIN PANEL</title>
+    
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link class="pwa-manifest" rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk5PV1NISU5UViBBRE1JTiIsCiAgInNob3J0X25hbWUiOiAiTk9XU0hJTlRWIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwZjE3MmEiLAogICJ0aGVtZV9jb2xvciI6ICIjMGYxNzJhIiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiaHR0cHM6Ly9pLnBvc3RpbWcuY2MvMTNCMmd3QkIvZmlsZS0wMDAwMDAwMDQ3NDg3MjA3OThjMmJmZWZiMTNhMDY4NS5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/13B2gwBB/file-000000004748720798c2bfefb13a0685.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #020617; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
+        .glow-online { box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
+        .glow-offline { box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); }
+        .shimmer {
+            background: linear-gradient(90deg, #0f172a 25%, #1e293b 50%, #0f172a 75%);
+            background-size: 200% 100%;
+            animation: loading-shimmer 1.5s infinite;
+        }
+        @keyframes loading-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased custom-scrollbar min-h-screen pb-28 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
+
+    <div class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-md border-b border-slate-900 shadow-xl">
+        <nav class="bg-slate-900/80 border-b border-slate-800/80 px-4 py-3 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="p-2 bg-indigo-600/10 rounded-xl border border-indigo-500/20 text-indigo-400 shadow-md">
+                    <img src="https://i.postimg.cc/13B2gwBB/file-000000004748720798c2bfefb13a0685.png" class="w-5 h-5 rounded-md object-cover">
+                </div>
+                <div>
+                    <h1 class="text-xs font-black tracking-wider text-white uppercase">Nowshin TV</h1>
+                    <p class="text-[9px] text-slate-400 font-bold tracking-widest -mt-0.5">ADMIN PANEL</p>
+                </div>
+            </div>
+
+            <div class="relative flex-1 max-w-md mx-2">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </span>
+                <input type="text" id="searchInput" oninput="searchChannelsAll()" placeholder="Search channels by name, url or category..." class="w-full bg-slate-950/60 border border-slate-800 rounded-xl pl-9 pr-4 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder:text-slate-500 text-slate-200">
+            </div>
+
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="syncStatus()" class="bg-slate-800/80 hover:bg-slate-700 active:scale-95 border border-slate-700/60 text-slate-200 p-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" title="Sync Status">
+                    <svg id="syncIcon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"/>
+                    </svg>
+                    <span id="syncText" class="hidden md:inline">Sync Status</span>
+                </button>
+                <button id="installPwa" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-medium transition-all">Install App</button>
+                
+                <div class="relative">
+                    <button onclick="toggleMenu(event)" class="p-2 bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 rounded-xl text-slate-300 transition-all active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01"/>
+                        </svg>
+                    </button>
+                    
+                    <div id="dotMenu" class="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-1.5 hidden flex-col gap-1 z-[60] transition-all">
+                        <button onclick="toggleDarkMode()" class="w-full flex items-center justify-between px-3 py-2.5 text-xs font-medium text-slate-300 hover:bg-slate-800 rounded-xl transition-all">
+                            <div class="flex items-center gap-2.5">
+                                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M14 12a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                <span>Toggle Theme</span>
+                            </div>
+                            <div class="w-8 h-4.5 bg-slate-700 rounded-full relative flex items-center px-0.5">
+                                <div id="themeToggleBall" class="w-3.5 h-3.5 bg-white rounded-full transition-all translate-x-3.5"></div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="max-w-7xl mx-auto p-3 md:px-6 flex justify-center items-center">
+            <div class="grid grid-cols-3 gap-3 w-full max-w-4xl mx-auto items-center justify-center">
+                <div onclick="filterByStatus('all')" id="card-all" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-indigo-500/20 shadow-lg cursor-pointer hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
+                    <p class="text-[10px] md:text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
+                        <span>Channel</span>
+                        <span id="tick-all" class="hidden text-indigo-400 shrink-0">✔</span>
+                    </p>
+                    <h3 id="count-total" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
+                </div>
+                
+                <div onclick="filterByStatus('online')" id="card-online" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-emerald-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
+                    <p class="text-[10px] md:text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                        <span>Online</span>
+                        <span id="tick-online" class="hidden text-emerald-400 shrink-0">✔</span>
+                    </p>
+                    <h3 id="count-online" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
+                </div>
+
+                <div onclick="filterByStatus('offline')" id="card-offline" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-rose-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
+                    <p class="text-[10px] md:text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span>
+                        <span>Offline</span>
+                        <span id="tick-offline" class="hidden text-rose-400 shrink-0">✔</span>
+                    </p>
+                    <h3 id="count-offline" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+        <div class="bg-slate-900 rounded-2xl border border-slate-800/80 shadow-2xl overflow-hidden">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse hidden md:table">
+                    <thead>
+                        <tr class="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                            <th class="py-4 px-5 text-center w-20">No.</th>
+                            <th class="py-4 px-5 w-24">Logo</th>
+                            <th class="py-4 px-5">Channel Credentials</th>
+                            <th class="py-4 px-5 w-44">Category</th>
+                            <th class="py-4 px-5 text-center w-32">Status</th>
+                            <th class="py-4 px-5 text-center w-36">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="channelTableBody" class="divide-y divide-slate-800/60 text-sm"></tbody>
+                </table>
+                <div id="channelMobileWrapper" class="block md:hidden p-3 space-y-3"></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="fixed bottom-0 inset-x-0 bg-slate-900/95 border-t border-slate-800/80 backdrop-blur-xl px-6 py-3.5 flex items-center justify-between z-40 shadow-2xl">
+        <button onclick="scrollToDashboard()" class="flex flex-col items-center justify-center gap-1 text-indigo-400 hover:text-indigo-300 transition-all active:scale-90">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span class="text-[10px] font-bold tracking-wide">Dashboard</span>
+        </button>
+
+        <button onclick="openModal()" class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-5 bg-indigo-600 hover:bg-indigo-500 text-white p-3.5 rounded-full shadow-xl shadow-indigo-600/40 border-[5px] border-slate-950 active:scale-90 transition-all flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+        </button>
+
+        <div class="text-right">
+            <span class="text-xs font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-500 uppercase font-mono">NowshinTV</span>
+            <p class="text-[8px] text-slate-500 font-bold -mt-0.5">STREAM UNIT</p>
+        </div>
+    </div>
+
+    <div id="channelModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transform scale-95 transition-all duration-200">
+            <div class="bg-slate-950 px-5 py-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xs font-bold tracking-wider text-white uppercase">Add Channel Configuration</h3>
+                <button onclick="closeModal()" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="channelForm" onsubmit="saveChannel(event)" class="p-5 space-y-4">
+                <input type="hidden" id="oldSerial">
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Serial *</label>
+                        <input type="number" id="chanSerial" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="e.g. 1">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Channel Name *</label>
+                        <input type="text" id="chanName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="e.g. Sony PIX">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Category *</label>
+                    <input type="text" id="chanCategory" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="Entertainment, Sports, Movies">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Stream Source URL *</label>
+                    <textarea id="chanUrl" required rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white custom-scrollbar" placeholder="https://domain.com/live.m3u8"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Logo URL</label>
+                    <input type="url" id="chanLogo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="https://domain.com/logo.png">
+                </div>
+                <div class="bg-slate-950 -mx-5 -mb-5 p-4 mt-5 flex justify-end gap-2 border-t border-slate-800">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-800 text-slate-400 rounded-xl text-xs font-semibold hover:bg-slate-900 transition-all">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition-all shadow-lg">Save Configuration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ আপনার গুগল অ্যাপস স্ক্রিপ্ট ম্যাক্রো ইউআরএল এখানে দিন
+        const API_URL = "https://script.google.com/macros/s/AKfycbw6LTxDqmMzRn-5JRNQtXlCZ4j0-bto7nV_y6sYTKpmIWX5XAf2JxwpBv_-Uf0butyH/exec"; 
+
+        let allChannels = [];
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLoadingSkeleton();
+            fetchChannels(true); // অ্যাপ ওপেন হতেই ১ সেকেন্ডে ডাটা লোড হবে + ব্যাকগ্রাউন্ডে ব্যাচ সিঙ্ক অন হবে
+            updateActiveTickmark();
+        });
+
+        function toggleMenu(event) {
+            event.stopPropagation();
+            document.getElementById('dotMenu').classList.toggle('hidden');
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const ball = document.getElementById('themeToggleBall');
+            if(html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                ball.classList.replace('translate-x-3.5', 'translate-x-0');
+            } else {
+                html.classList.add('dark');
+                ball.classList.replace('translate-x-0', 'translate-x-3.5');
+            }
+        }
+
+        function renderLoadingSkeleton() {
+            const tbody = document.getElementById('channelTableBody');
+            const mobileWrapper = document.getElementById('channelMobileWrapper');
+            let rows = '', cards = '';
+            for (let i = 0; i < 4; i++) {
+                rows += `<tr><td class="py-4 px-5 text-center"><div class="shimmer h-4 rounded w-8 mx-auto"></div></td><td class="py-4 px-5"><div class="shimmer w-10 h-10 rounded-xl"></div></td><td class="py-4 px-5"><div class="shimmer h-4 rounded w-32 mb-2"></div><div class="shimmer h-3 rounded w-56"></div></td><td class="py-4 px-5"><div class="shimmer h-5 rounded-lg w-20"></div></td><td class="py-4 px-5 text-center"><div class="shimmer h-6 rounded-full w-20 mx-auto"></div></td><td class="py-4 px-5 text-center"><div class="shimmer h-8 rounded-xl w-20 mx-auto"></div></td></tr>`;
+                cards += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3"><div class="flex items-center gap-3"><div class="shimmer w-11 h-11 rounded-xl shrink-0"></div><div class="flex-1 space-y-2"><div class="shimmer h-4 rounded w-1/3"></div><div class="shimmer h-3 rounded w-2/3"></div></div></div></div>`;
+            }
+            tbody.innerHTML = rows; mobileWrapper.innerHTML = cards;
+        }
+
+        async function fetchChannels(triggerAutoSync = false) {
+            try {
+                const response = await fetch(`${API_URL}?action=getChannels`);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    allChannels = result.data;
+                    updateDashboard();
+                    if(triggerAutoSync) {
+                        // ৮-৯ মিনিট লোডিং আটকাতে এটি এখন "স্মার্ট ব্যাচ ওয়াইজ" ব্যাকগ্রাউন্ডে কাজ করবে
+                        startBatchSyncBackground();
+                    }
+                }
+            } catch (error) { console.error('API Error'); }
+        }
+
+        // 🔵 আল্ট্রা-ফাস্ট ব্যাচ সিঙ্কিং প্রসেস (ড্যাশবোর্ড ব্যবহারের কোনো সমস্যা হবে না)
+        async function startBatchSyncBackground() {
+            const icon = document.getElementById('syncIcon');
+            const syncText = document.getElementById('syncText');
+            if(icon) icon.classList.add('animate-spin');
+            
+            let total = allChannels.length;
+            let batchSize = 5; // প্রতিবারে মাত্র ৫টি করে চ্যানেল ব্যাকগ্রাউন্ডে সিঙ্ক হবে
+            
+            for(let i = 0; i < total; i += batchSize) {
+                if(syncText) syncText.innerText = `Syncing (${i}/${total})`;
+                try {
+                    await fetch(API_URL, { 
+                        method: 'POST', 
+                        body: JSON.stringify({ action: 'syncStatus', startIndex: i, batchSize: batchSize }) 
+                    });
+                } catch (e) { console.log('Batch sync buffer bypassed.'); }
+            }
+            
+            if(syncText) syncText.innerText = "Sync Status";
+            if(icon) icon.classList.remove('animate-spin');
+            fetchChannels(false); // সিঙ্ক কমপ্লিট হলে ফাইনাল আপডেট রিফ্রেশ
+        }
+
+        function updateDashboard() {
+            const tbody = document.getElementById('channelTableBody');
+            const mobileWrapper = document.getElementById('channelMobileWrapper');
+            if(!tbody || !mobileWrapper) return;
+            
+            tbody.innerHTML = ''; mobileWrapper.innerHTML = '';
+            let onlineCount = 0, offlineCount = 0;
+
+            let filtered = allChannels.filter(ch => {
+                if (currentFilter === 'online') return ch.status === 'Online';
+                if (currentFilter === 'offline') return ch.status !== 'Online';
+                return true;
+            });
+
+            allChannels.forEach(ch => { ch.status === 'Online' ? onlineCount++ : offlineCount++; });
+            document.getElementById('count-total').innerText = allChannels.length;
+            document.getElementById('count-online').innerText = onlineCount;
+            document.getElementById('count-offline').innerText = offlineCount;
+
+            ['all', 'online', 'offline'].forEach(t => {
+                const card = document.getElementById(`card-${t}`);
+                if (card) currentFilter === t ? card.classList.add('border-indigo-500/60', 'bg-slate-850') : card.classList.remove('border-indigo-500/60', 'bg-slate-850');
+            });
+
+            updateActiveTickmark();
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 font-medium">No active channels found.</td></tr>`;
+                mobileWrapper.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No active channels found.</div>`;
+                return;
+            }
+
+            filtered.forEach(ch => {
+                const isOnline = ch.status === 'Online';
+                const logoImg = ch.logo || 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=120&auto=format&fit=crop';
+                
+                const row = document.createElement('tr');
+                row.id = `channel-row-${ch.serial}`;
+                row.className = "hover:bg-slate-950/40 transition-all group";
+                row.innerHTML = `
+                    <td class="py-3.5 px-5 text-center font-bold text-slate-500 font-mono">${ch.serial}</td>
+                    <td class="py-3.5 px-5"><img src="${logoImg}" class="w-10 h-10 object-cover rounded-xl bg-slate-950 border border-slate-800 shadow-inner"></td>
+                    <td class="py-3.5 px-5">
+                        <div class="font-bold text-slate-200 group-hover:text-indigo-400 transition-colors">${ch.name}</div>
+                        <div class="text-xs text-slate-500 font-mono mt-0.5 truncate max-w-md">${ch.url}</div>
+                    </td>
+                    <td class="py-3.5 px-5"><span class="px-2.5 py-1 bg-slate-950 border border-slate-800 rounded-lg text-xs font-semibold text-slate-400">${ch.category}</span></td>
+                    <td class="py-3.5 px-5 text-center">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full ${isOnline ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 glow-online' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20 glow-offline'}">
+                            <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400 animate-ping' : 'bg-rose-400'}"></span>
+                            ${ch.status}
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-5 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="editChannel(${ch.serial})" class="p-2 text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-all active:scale-90"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                            <button onclick="deleteChannel(${ch.serial})" class="p-2 text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all active:scale-90"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-16v4M4 7h16"/></svg></button>
+                        </div>
+                    </td>`;
+                tbody.appendChild(row);
+
+                const mobileCard = document.createElement('div');
+                mobileCard.id = `channel-card-${ch.serial}`;
+                mobileCard.className = "bg-slate-900 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 shadow-md";
+                mobileCard.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <img src="${logoImg}" class="w-11 h-11 object-cover rounded-xl bg-slate-950 border border-slate-800 shrink-0">
+                        <div class="overflow-hidden">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[9px] font-bold font-mono text-slate-500 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">${ch.serial}</span>
+                                <h4 class="font-bold text-slate-200 truncate text-sm">${ch.name}</h4>
+                            </div>
+                            <p class="text-[10px] text-indigo-400 font-semibold truncate mt-0.5">${ch.category}</p>
+                            <div class="flex items-center gap-1 mt-1">
+                                <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+                                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">${ch.status}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80">
+                        <button onclick="editChannel(${ch.serial})" class="p-2 text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-all active:scale-90"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                        <button onclick="deleteChannel(${ch.serial})" class="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all active:scale-90"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-16v4M4 7h16"/></svg></button>
+                    </div>`;
+                mobileWrapper.appendChild(mobileCard);
+            });
+        }
+
+        function updateActiveTickmark() {
+            ['all', 'online', 'offline'].forEach(type => {
+                const tickEl = document.getElementById(`tick-${type}`);
+                if (tickEl) currentFilter === type ? tickEl.classList.remove('hidden') : tickEl.classList.add('hidden');
+            });
+        }
+
+        function scrollToDashboard() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            filterByStatus('all');
+        }
+
+        async function saveChannel(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true; btn.innerText = "Processing Data...";
+            
+            const icon = document.getElementById('syncIcon');
+            if(icon) icon.classList.add('animate-spin'); 
+
+            const targetSerial = document.getElementById('chanSerial').value;
+            const channelPayload = {
+                serial: targetSerial,
+                name: document.getElementById('chanName').value,
+                category: document.getElementById('chanCategory').value,
+                url: document.getElementById('chanUrl').value,
+                logo: document.getElementById('chanLogo').value,
+                oldSerial: document.getElementById('oldSerial').value || null
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'addOrEdit', channel: channelPayload })
+                });
+                const res = await response.json();
+                if(res.status === 'success') {
+                    closeModal();
+                    // 🟢 ইনস্ট্যান্ট সিঙ্গেল ভ্যালিডেশন সিস্টেম: সেভ হওয়ার সাথে সাথে শুধু এই ১টি চ্যানেলকে রিয়েলটাইম চেক করবে
+                    await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'syncStatus', targetId: targetSerial })
+                    });
+                    await fetchChannels(false);
+                }
+            } catch (error) { alert('Operation Failed'); }
+            btn.disabled = false; btn.innerText = "Save Configuration";
+            if(icon) icon.classList.remove('animate-spin');
+        }
+
+        function editChannel(serial) {
+            const ch = allChannels.find(c => c.serial === serial);
+            if(!ch) return;
+            document.getElementById('modalTitle').innerText = "Update Configuration";
+            document.getElementById('oldSerial').value = ch.serial;
+            document.getElementById('chanSerial').value = ch.serial;
+            document.getElementById('chanName').value = ch.name;
+            document.getElementById('chanCategory').value = ch.category;
+            document.getElementById('chanUrl').value = ch.url;
+            document.getElementById('chanLogo').value = ch.logo;
+            document.getElementById('channelModal').classList.remove('hidden');
+        }
+
+        async function deleteChannel(serial) {
+            if(!confirm(`Are you sure you want to delete Channel No: ${serial}?`)) return;
+            const rowTarget = document.getElementById(`channel-row-${serial}`);
+            const cardTarget = document.getElementById(`channel-card-${serial}`);
+            if(rowTarget) rowTarget.style.opacity = '0.3';
+            if(cardTarget) cardTarget.style.opacity = '0.3';
+
+            try {
+                const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: serial }) });
+                const res = await response.json();
+                if(res.status === 'success') {
+                    if(rowTarget) rowTarget.remove();
+                    if(cardTarget) cardTarget.remove();
+                    allChannels = allChannels.filter(c => c.serial !== serial);
+                    updateDashboard();
+                }
+            } catch (error) { alert('Delete Action Failed'); }
+        }
+
+        async function syncStatus() {
+            // ম্যানুয়ালি ক্লিক করলেও এটি এখন স্মার্ট ব্যাচ সিঙ্ক রান করবে
+            startBatchSyncBackground();
+        }
+
+        function searchChannelsAll() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const tbody = document.getElementById('channelTableBody');
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(row => { row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none"; });
+
+            const mobileWrapper = document.getElementById('channelMobileWrapper');
+            const cards = mobileWrapper.children;
+            for(let card of cards){ card.style.display = card.innerText.toLowerCase().includes(query) ? "flex" : "none"; }
+        }
+
+        function filterByStatus(type) { currentFilter = type; updateDashboard(); }
+        function openModal() { document.getElementById('channelForm').reset(); document.getElementById('oldSerial').value = ''; document.getElementById('modalTitle').innerText = "Add Channel Configuration"; document.getElementById('channelModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('channelModal').classList.add('hidden'); }
+
+        window.addEventListener('click', function(e){
+            const menu = document.getElementById('dotMenu');
+            if (!e.target.closest('#dotMenu') && !e.target.closest('button[onclick^="toggleMenu"]')) { menu.classList.add('hidden'); }
+        });
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); deferredPrompt = e;
+            const btn = document.getElementById('installPwa');
+            if (btn) {
+                btn.classList.remove('hidden');
+                btn.addEventListener('click', () => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choice) => {
+                        if (choice.outcome === 'accepted') btn.classList.add('hidden');
+                        deferredPrompt = null;
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
