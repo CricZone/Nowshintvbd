@@ -24,7 +24,7 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #020617; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
@@ -40,28 +40,6 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        
-        /* Premium Wave Signals Animations */
-        @keyframes signalWaveUp {
-            0%, 100% { opacity: 0.3; transform: scale(0.95); }
-            50% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes tvFlicker {
-            0%, 100% { opacity: 0.95; }
-            50% { opacity: 0.75; filter: saturate(1.2); }
-        }
-        .animate-tv { animation: tvFlicker 2s infinite ease-in-out; }
-        .sig-1 { animation: signalWaveUp 1.2s infinite ease-in-out 0.2s; }
-        .sig-2 { animation: signalWaveUp 1.2s infinite ease-in-out 0.4s; }
-        .sig-3 { animation: signalWaveUp 1.2s infinite ease-in-out 0.6s; }
-
-        /* Premium Sync Radar Effect */
-        @keyframes radar-pulse {
-            0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            50% { transform: scale(1.05); opacity: 1; box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
-            100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-        }
-        .sync-active-glow { animation: radar-pulse 1.8s infinite ease-in-out; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased custom-scrollbar min-h-screen pb-28 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
@@ -88,12 +66,10 @@
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
-                <button onclick="syncStatus()" class="bg-slate-800/80 hover:bg-slate-700 active:scale-95 border border-slate-700/60 text-slate-200 p-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-md relative" id="syncBtn" title="Sync Status">
-                    <div id="syncIconContainer" class="relative w-4 h-4 flex items-center justify-center">
-                        <svg id="syncIcon" class="w-4 h-4 text-indigo-400 transition-all duration-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
-                        </svg>
-                    </div>
+                <button onclick="syncStatus()" class="bg-slate-800/80 hover:bg-slate-700 active:scale-95 border border-slate-700/60 text-slate-200 p-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" title="Sync Status">
+                    <svg id="syncIcon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"/>
+                    </svg>
                     <span id="syncText" class="hidden md:inline">Sync Status</span>
                 </button>
                 <button id="installPwa" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl font-medium transition-all">Install App</button>
@@ -122,60 +98,30 @@
             </div>
         </nav>
 
-        <div id="syncLiveStatus" class="max-w-4xl mx-auto px-4 py-2 mt-2 hidden transition-all duration-300">
-            <div class="bg-slate-900/90 border border-indigo-500/40 rounded-2xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xl backdrop-blur-xl ring-1 ring-slate-800">
-                <div class="flex items-center gap-3 text-xs font-semibold text-slate-200 w-full">
-                    <span class="flex h-3 w-3 relative shrink-0">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
-                    </span>
-                    <div id="syncStatusMsg" class="flex items-center gap-2.5 text-xs transition-all duration-200 overflow-hidden text-ellipsis whitespace-nowrap w-full">Initializing Core Engine Infrastructure...</div>
-                </div>
-            </div>
-        </div>
-
         <div class="max-w-7xl mx-auto p-3 md:px-6 flex justify-center items-center">
             <div class="grid grid-cols-3 gap-3 w-full max-w-4xl mx-auto items-center justify-center">
-                
-                <div onclick="filterByStatus('all')" id="card-all" class="bg-slate-900 py-3 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[75px]">
+                <div onclick="filterByStatus('all')" id="card-all" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-indigo-500/20 shadow-lg cursor-pointer hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
                     <p class="text-[10px] md:text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
-                        <svg class="w-4 h-4 shrink-0 text-indigo-400 animate-tv" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 4h10M5 20h14c1.103 0 2-.897 2-2V8c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2zm1-12h12v10H6V8z"/>
-                        </svg>
                         <span>Channel</span>
-                        <span id="tick-all" class="hidden text-indigo-400 font-black shrink-0">
-                            <svg class="w-3.5 h-3.5 inline ml-0.5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        </span>
+                        <span id="tick-all" class="hidden text-indigo-400 shrink-0">✔</span>
                     </p>
                     <h3 id="count-total" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
                 </div>
                 
-                <div onclick="filterByStatus('online')" id="card-online" class="bg-slate-900 py-3 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-emerald-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[75px]">
+                <div onclick="filterByStatus('online')" id="card-online" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-emerald-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
                     <p class="text-[10px] md:text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
-                        <svg class="w-4 h-4 shrink-0 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" class="sig-1" d="M12 18h.01"/>
-                            <path stroke-linecap="round" class="sig-2" d="M9.172 15.172a4 4 0 015.656 0"/>
-                            <path stroke-linecap="round" class="sig-3" d="M6.343 12.343a8 8 0 0111.314 0"/>
-                        </svg>
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
                         <span>Online</span>
-                        <span id="tick-online" class="hidden text-emerald-400 font-black shrink-0">
-                            <svg class="w-3.5 h-3.5 inline ml-0.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        </span>
+                        <span id="tick-online" class="hidden text-emerald-400 shrink-0">✔</span>
                     </p>
                     <h3 id="count-online" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
                 </div>
 
-                <div onclick="filterByStatus('offline')" id="card-offline" class="bg-slate-900 py-3 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-rose-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[75px]">
+                <div onclick="filterByStatus('offline')" id="card-offline" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-rose-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
                     <p class="text-[10px] md:text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
-                        <svg class="w-4 h-4 shrink-0 text-rose-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" class="sig-3" d="M6.343 12.343a8 8 0 0011.314 0"/>
-                            <path stroke-linecap="round" class="sig-2" d="M9.172 15.172a4 4 0 005.656 0"/>
-                            <path stroke-linecap="round" class="sig-1" d="M12 18h.01"/>
-                        </svg>
+                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span>
                         <span>Offline</span>
-                        <span id="tick-offline" class="hidden text-rose-400 font-black shrink-0">
-                            <svg class="w-3.5 h-3.5 inline ml-0.5 text-rose-400" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                        </span>
+                        <span id="tick-offline" class="hidden text-rose-400 shrink-0">✔</span>
                     </p>
                     <h3 id="count-offline" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
                 </div>
@@ -239,7 +185,7 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div class="col-span-1">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Serial *</label>
-                        <input type="number" id="chanSerial" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white font-semibold placeholder:text-slate-600" placeholder="Auto Serial">
+                        <input type="number" id="chanSerial" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="e.g. 1">
                     </div>
                     <div class="col-span-2">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Channel Name *</label>
@@ -248,15 +194,15 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Category *</label>
-                    <input type="text" id="chanCategory" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white font-semibold placeholder:text-slate-600" placeholder="NOWSHIN">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Logo URL</label>
-                    <input type="url" id="chanLogo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="https://domain.com/logo.png">
+                    <input type="text" id="chanCategory" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="Entertainment, Sports, Movies">
                 </div>
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Stream Source URL *</label>
                     <textarea id="chanUrl" required rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white custom-scrollbar" placeholder="https://domain.com/live.m3u8"></textarea>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Logo URL</label>
+                    <input type="url" id="chanLogo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="https://domain.com/logo.png">
                 </div>
                 <div class="bg-slate-950 -mx-5 -mb-5 p-4 mt-5 flex justify-end gap-2 border-t border-slate-800">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-800 text-slate-400 rounded-xl text-xs font-semibold hover:bg-slate-900 transition-all">Cancel</button>
@@ -267,15 +213,16 @@
     </div>
 
     <script>
+        // ⚠️ আপনার গুগল অ্যাপস স্ক্রিপ্ট ম্যাক্রো ইউআরএল এখানে দিন
         const API_URL = "https://script.google.com/macros/s/AKfycbw6LTxDqmMzRn-5JRNQtXlCZ4j0-bto7nV_y6sYTKpmIWX5XAf2JxwpBv_-Uf0butyH/exec"; 
 
         let allChannels = [];
-        let currentFilter = null; 
-        let dynamicNextSerial = 1;
+        let currentFilter = 'all';
 
         document.addEventListener('DOMContentLoaded', () => {
             renderLoadingSkeleton();
-            fetchChannels(); 
+            fetchChannels(); // অ্যাপ ওপেন হতেই ইনস্ট্যান্টলি ফ্রেশ ডাটা লোড হবে, কোনো ব্যাকগ্রাউন্ড জ্যাম থাকবে না
+            updateActiveTickmark();
         });
 
         function toggleMenu(event) {
@@ -303,8 +250,7 @@
                 rows += `<tr><td class="py-4 px-5 text-center"><div class="shimmer h-4 rounded w-8 mx-auto"></div></td><td class="py-4 px-5"><div class="shimmer w-10 h-10 rounded-xl"></div></td><td class="py-4 px-5"><div class="shimmer h-4 rounded w-32 mb-2"></div><div class="shimmer h-3 rounded w-56"></div></td><td class="py-4 px-5"><div class="shimmer h-5 rounded-lg w-20"></div></td><td class="py-4 px-5 text-center"><div class="shimmer h-6 rounded-full w-20 mx-auto"></div></td><td class="py-4 px-5 text-center"><div class="shimmer h-8 rounded-xl w-20 mx-auto"></div></td></tr>`;
                 cards += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3"><div class="flex items-center gap-3"><div class="shimmer w-11 h-11 rounded-xl shrink-0"></div><div class="flex-1 space-y-2"><div class="shimmer h-4 rounded w-1/3"></div><div class="shimmer h-3 rounded w-2/3"></div></div></div></div>`;
             }
-            if(tbody) tbody.innerHTML = rows; 
-            if(mobileWrapper) mobileWrapper.innerHTML = cards;
+            tbody.innerHTML = rows; mobileWrapper.innerHTML = cards;
         }
 
         async function fetchChannels() {
@@ -313,110 +259,34 @@
                 const result = await response.json();
                 if (result.status === 'success') {
                     allChannels = result.data;
-                    allChannels.sort((a, b) => parseInt(a.serial) - parseInt(b.serial));
-                    
-                    if(allChannels.length > 0) {
-                        let maxSer = Math.max(...allChannels.map(c => parseInt(c.serial) || 0));
-                        dynamicNextSerial = maxSer + 1;
-                    } else {
-                        dynamicNextSerial = 1;
-                    }
-
-                    if (currentFilter === null) {
-                        let onlineCount = allChannels.filter(ch => ch.status === 'Online').length;
-                        let offlineCount = allChannels.filter(ch => ch.status !== 'Online').length;
-                        
-                        if (onlineCount > 0) {
-                            currentFilter = 'online';
-                        } else if (offlineCount > 0) {
-                            currentFilter = 'offline';
-                        } else {
-                            currentFilter = 'all';
-                        }
-                    }
                     updateDashboard();
                 }
             } catch (error) { console.error('API Error'); }
         }
 
-        // Requirement 2 & 3: High Quality Premium Live Sync Processor & Premium System SVG Icons
+        // 🟢 ম্যানুয়াল সিঙ্ক অপারেশন (বাটনে ক্লিক করলেই কেবল ১ বার রান হবে)
         async function syncStatus() {
-            const btn = document.getElementById('syncBtn');
             const icon = document.getElementById('syncIcon');
-            const syncIconContainer = document.getElementById('syncIconContainer');
             const syncText = document.getElementById('syncText');
-            const liveToast = document.getElementById('syncLiveStatus');
-            const toastMsg = document.getElementById('syncStatusMsg');
             
             if(icon) icon.classList.add('animate-spin');
-            if(syncIconContainer) syncIconContainer.classList.add('sync-active-glow', 'rounded-full', 'p-1');
-            if(btn) btn.classList.add('scale-95', 'ring-2', 'ring-indigo-500/50', 'animate-pulse');
-            if(syncText) syncText.innerText = "Syncing Network...";
-            if(liveToast) liveToast.classList.remove('hidden');
+            if(syncText) syncText.innerText = "Syncing Status...";
 
             try {
-                if(toastMsg) {
-                    toastMsg.innerHTML = `
-                        <svg class="w-4 h-4 text-indigo-400 animate-spin shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
-                        <span>Connecting Pipeline Infrastructure...</span>`;
-                }
-                if (allChannels.length === 0) await fetchChannels();
-                
-                for(let i = 0; i < allChannels.length; i++) {
-                    let ch = allChannels[i];
-                    if(toastMsg) {
-                        if(ch.status === 'Online') {
-                            toastMsg.innerHTML = `
-                                <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                                <span class="text-slate-300 font-medium truncate">Syncing: <b class="text-white">${ch.name}</b> <span class="ml-1 text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-1.5 py-0.5 rounded-md flex items-center inline-flex gap-0.5"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg> Valid</span></span>`;
-                        } else {
-                            toastMsg.innerHTML = `
-                                <svg class="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                <span class="text-slate-300 font-medium truncate">Syncing: <b class="text-white">${ch.name}</b> <span class="ml-1 text-[10px] bg-rose-500/10 border border-rose-500/30 text-rose-400 px-1.5 py-0.5 rounded-md flex items-center inline-flex gap-0.5"><svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg> Down</span></span>`;
-                        }
-                    }
-                    await new Promise(r => setTimeout(r, 400)); 
-                }
-
-                if(toastMsg) {
-                    toastMsg.innerHTML = `
-                        <svg class="w-4 h-4 text-indigo-400 animate-bounce shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V2.25m0 14.25l-3.75-3.75m3.75 3.75l3.75-3.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>Pushing Core Handshake to Cloud Stream Architecture...</span>`;
-                }
-
                 const response = await fetch(API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'syncStatus' }) 
                 });
                 const res = await response.json();
-                
                 if(res.status === 'success') {
-                    if(toastMsg) {
-                        toastMsg.innerHTML = `
-                            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span class="text-emerald-400 font-bold">Configuration Sync Successful! Pipeline is stable.</span>`;
-                    }
-                    await fetchChannels(); 
-                } else {
-                    if(toastMsg) {
-                        toastMsg.innerHTML = `
-                            <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <span class="text-rose-400 font-bold">Sync Aborted: Server Handshake Drop.</span>`;
-                    }
+                    await fetchChannels(); // সিঙ্ক শেষে লেটেস্ট স্ট্যাটাস ডাটা রিলোড করবে
                 }
             } catch (e) { 
-                console.error('Sync error:', e);
-                if(toastMsg) {
-                    toastMsg.innerHTML = `
-                        <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
-                        <span class="text-rose-400 font-bold">Sync Timeout: Packet Routing Failure.</span>`;
-                }
+                console.error('Manual sync failed:', e);
+                alert('Sync process timed out or failed. Please check Google Sheet Connection.');
             } finally {
                 if(syncText) syncText.innerText = "Sync Status";
                 if(icon) icon.classList.remove('animate-spin');
-                if(syncIconContainer) syncIconContainer.classList.remove('sync-active-glow', 'rounded-full', 'p-1');
-                if(btn) btn.classList.remove('scale-95', 'ring-2', 'ring-indigo-500/50', 'animate-pulse');
-                setTimeout(() => { if(liveToast) liveToast.classList.add('hidden'); }, 4000);
             }
         }
 
@@ -441,21 +311,14 @@
 
             ['all', 'online', 'offline'].forEach(t => {
                 const card = document.getElementById(`card-${t}`);
-                if (card) card.classList.remove('border-indigo-500/60', 'bg-slate-900/40', 'border-emerald-500/60', 'border-rose-500/60');
+                if (card) currentFilter === t ? card.classList.add('border-indigo-500/60', 'bg-slate-850') : card.classList.remove('border-indigo-500/60', 'bg-slate-850');
             });
-
-            const activeCard = document.getElementById(`card-${currentFilter}`);
-            if (activeCard) {
-                if (currentFilter === 'online') activeCard.classList.add('border-emerald-500/60', 'bg-slate-900/40');
-                else if (currentFilter === 'offline') activeCard.classList.add('border-rose-500/60', 'bg-slate-900/40');
-                else activeCard.classList.add('border-indigo-500/60', 'bg-slate-900/40');
-            }
 
             updateActiveTickmark();
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 font-medium">No active channels found under this segment.</td></tr>`;
-                mobileWrapper.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No active channels found under this segment.</div>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-slate-500 font-medium">No active channels found.</td></tr>`;
+                mobileWrapper.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No active channels found.</div>`;
                 return;
             }
 
@@ -526,52 +389,23 @@
             filterByStatus('all');
         }
 
-        // Requirement 1 & 3: Data Save Processor with Fallback Defaulting for Serial and Category
         async function saveChannel(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true; btn.innerText = "Processing Pipeline Data...";
+            btn.disabled = true; btn.innerText = "Processing Data...";
             
             const icon = document.getElementById('syncIcon');
             if(icon) icon.classList.add('animate-spin'); 
 
-            let inputSerial = document.getElementById('chanSerial').value;
-            // If empty, automatically fallback to calculated dynamic next serial
-            const targetSerial = inputSerial ? parseInt(inputSerial) : dynamicNextSerial;
-            
-            let inputCategory = document.getElementById('chanCategory').value.trim();
-            // If empty, automatically fallback to "NOWSHIN"
-            const finalCategory = inputCategory !== "" ? inputCategory : "NOWSHIN";
-
-            const oldSerialVal = document.getElementById('oldSerial').value;
-            
+            const targetSerial = document.getElementById('chanSerial').value;
             const channelPayload = {
                 serial: targetSerial,
                 name: document.getElementById('chanName').value,
-                category: finalCategory,
+                category: document.getElementById('chanCategory').value,
                 url: document.getElementById('chanUrl').value,
                 logo: document.getElementById('chanLogo').value,
-                oldSerial: oldSerialVal ? parseInt(oldSerialVal) : null
+                oldSerial: document.getElementById('oldSerial').value || null
             };
-
-            if (!channelPayload.oldSerial) { 
-                let conflictExist = allChannels.some(c => parseInt(c.serial) === targetSerial);
-                if (conflictExist) {
-                    for(let i = 0; i < allChannels.length; i++){
-                        let currentSerial = parseInt(allChannels[i].serial);
-                        if(currentSerial >= targetSerial) {
-                            allChannels[i].serial = currentSerial + 1;
-                            await fetch(API_URL, {
-                                method: 'POST',
-                                body: JSON.stringify({ 
-                                    action: 'addOrEdit', 
-                                    channel: { ...allChannels[i], oldSerial: currentSerial } 
-                                })
-                            });
-                        }
-                    }
-                }
-            }
 
             try {
                 const response = await fetch(API_URL, {
@@ -581,32 +415,26 @@
                 const res = await response.json();
                 if(res.status === 'success') {
                     closeModal();
+                    // সিঙ্গেল চ্যানেল ইনস্ট্যান্ট ভ্যালিডেশন 
                     await fetch(API_URL, {
                         method: 'POST',
                         body: JSON.stringify({ action: 'syncStatus', targetId: targetSerial })
                     });
                     await fetchChannels();
                 }
-            } catch (error) { alert('Pipeline Operation Failed'); }
+            } catch (error) { alert('Operation Failed'); }
             btn.disabled = false; btn.innerText = "Save Configuration";
             if(icon) icon.classList.remove('animate-spin');
         }
 
         function editChannel(serial) {
-            const ch = allChannels.find(c => parseInt(c.serial) === parseInt(serial));
+            const ch = allChannels.find(c => c.serial === serial);
             if(!ch) return;
-            document.getElementById('modalTitle').innerText = "Update Channel Unit Configuration";
+            document.getElementById('modalTitle').innerText = "Update Configuration";
             document.getElementById('oldSerial').value = ch.serial;
-            
-            // Edit Mode shows real absolute data inside value
             document.getElementById('chanSerial').value = ch.serial;
-            document.getElementById('chanSerial').placeholder = ch.serial;
-            
             document.getElementById('chanName').value = ch.name;
-            
             document.getElementById('chanCategory').value = ch.category;
-            document.getElementById('chanCategory').placeholder = ch.category;
-            
             document.getElementById('chanUrl').value = ch.url;
             document.getElementById('chanLogo').value = ch.logo;
             document.getElementById('channelModal').classList.remove('hidden');
@@ -625,10 +453,10 @@
                 if(res.status === 'success') {
                     if(rowTarget) rowTarget.remove();
                     if(cardTarget) cardTarget.remove();
-                    allChannels = allChannels.filter(c => parseInt(c.serial) !== parseInt(serial));
+                    allChannels = allChannels.filter(c => c.serial !== serial);
                     updateDashboard();
                 }
-            } catch (error) { alert('Delete Handshake Failed'); }
+            } catch (error) { alert('Delete Action Failed'); }
         }
 
         function searchChannelsAll() {
@@ -643,23 +471,7 @@
         }
 
         function filterByStatus(type) { currentFilter = type; updateDashboard(); }
-        
-        // Requirement 1: Smart Open Modal showing crisp clear inputs using non-intrusive placeholders
-        function openModal() { 
-            document.getElementById('channelForm').reset(); 
-            document.getElementById('oldSerial').value = ''; 
-            
-            // Value is kept blank so typing directly overwrites, placeholder displays what will be saved if left untouched
-            document.getElementById('chanSerial').value = '';
-            document.getElementById('chanSerial').placeholder = dynamicNextSerial;
-            
-            document.getElementById('chanCategory').value = '';
-            document.getElementById('chanCategory').placeholder = "NOWSHIN";
-            
-            document.getElementById('modalTitle').innerText = "Add Channel Configuration"; 
-            document.getElementById('channelModal').classList.remove('hidden'); 
-        }
-        
+        function openModal() { document.getElementById('channelForm').reset(); document.getElementById('oldSerial').value = ''; document.getElementById('modalTitle').innerText = "Add Channel Configuration"; document.getElementById('channelModal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('channelModal').classList.add('hidden'); }
 
         window.addEventListener('click', function(e){
