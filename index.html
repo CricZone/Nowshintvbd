@@ -18,13 +18,27 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    animation: {
+                        'wifi-bounce': 'wifiBounce 1.2s infinite ease-in-out',
+                        'wifi-drop': 'wifiDrop 1.4s infinite ease-in-out',
+                    },
+                    keyframes: {
+                        wifiBounce: {
+                            '0%, 100%': { transform: 'translateY(0) scale(1)' },
+                            '50%': { transform: 'translateY(-4px) scale(1.05)', filter: 'drop-shadow(0 0 8px #10b981)' }
+                        },
+                        wifiDrop: {
+                            '0%, 100%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+                            '50%': { transform: 'translateY(3px) scale(0.95)', opacity: '0.6', filter: 'drop-shadow(0 0 6px #f43f5e)' }
+                        }
+                    }
                 }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700;800&display=swap');
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #020617; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 99px; }
@@ -66,8 +80,8 @@
             </div>
 
             <div class="flex items-center gap-2 shrink-0">
-                <button onclick="syncStatus()" class="bg-slate-800/80 hover:bg-slate-700 active:scale-95 border border-slate-700/60 text-slate-200 p-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all" title="Sync Status">
-                    <svg id="syncIcon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <button onclick="syncStatus()" class="bg-slate-800/80 hover:bg-slate-700 active:scale-95 border border-slate-700/60 text-slate-200 p-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-md relative" id="syncBtn" title="Sync Status">
+                    <svg id="syncIcon" class="w-4 h-4 text-indigo-400 transition-all" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"/>
                     </svg>
                     <span id="syncText" class="hidden md:inline">Sync Status</span>
@@ -98,30 +112,50 @@
             </div>
         </nav>
 
+        <div id="syncLiveStatus" class="max-w-4xl mx-auto px-4 py-2 mt-2 hidden transition-all duration-300">
+            <div class="bg-slate-900/90 border border-indigo-500/40 rounded-2xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xl backdrop-blur-xl ring-1 ring-slate-800">
+                <div class="flex items-center gap-3 text-xs font-semibold text-slate-200 w-full">
+                    <span class="flex h-2.5 w-2.5 relative shrink-0">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+                    </span>
+                    <div id="syncStatusMsg" class="flex items-center gap-2 transition-all duration-300 text-slate-300 truncate w-full">Initializing Core Engine...</div>
+                </div>
+            </div>
+        </div>
+
         <div class="max-w-7xl mx-auto p-3 md:px-6 flex justify-center items-center">
             <div class="grid grid-cols-3 gap-3 w-full max-w-4xl mx-auto items-center justify-center">
-                <div onclick="filterByStatus('all')" id="card-all" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-indigo-500/20 shadow-lg cursor-pointer hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
+                
+                <div onclick="filterByStatus('all')" id="card-all" class="bg-slate-900 py-3 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-indigo-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[70px]">
                     <p class="text-[10px] md:text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
+                        <svg class="w-4 h-4 shrink-0 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 4h10M5 20h14c1.103 0 2-.897 2-2V8c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v10c0 1.103.897 2 2 2zm1-12h12v10H6V8z"/>
+                        </svg>
                         <span>Channel</span>
-                        <span id="tick-all" class="hidden text-indigo-400 shrink-0">✔</span>
+                        <span id="tick-all" class="hidden text-indigo-400 font-black shrink-0">✔</span>
                     </p>
                     <h3 id="count-total" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
                 </div>
                 
-                <div onclick="filterByStatus('online')" id="card-online" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-emerald-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
+                <div onclick="filterByStatus('online')" id="card-online" class="bg-slate-900 py-3 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-emerald-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[70px]">
                     <p class="text-[10px] md:text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
-                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                        <svg class="w-4 h-4 shrink-0 text-emerald-400 animate-wifi-bounce" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19a1 1 0 100-2 1 1 0 000 2zm6.364-6.364a9 9 0 00-12.728 0m9.9-2.828a5 5 0 00-7.072 0"/>
+                        </svg>
                         <span>Online</span>
-                        <span id="tick-online" class="hidden text-emerald-400 shrink-0">✔</span>
+                        <span id="tick-online" class="hidden text-emerald-400 font-black shrink-0">✔</span>
                     </p>
                     <h3 id="count-online" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
                 </div>
 
-                <div onclick="filterByStatus('offline')" id="card-offline" class="bg-slate-900 py-2.5 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-rose-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[64px]">
+                <div onclick="filterByStatus('offline')" id="card-offline" class="bg-slate-900 py-3 px-4 rounded-xl border border-slate-800 shadow-lg cursor-pointer hover:border-rose-500/40 transition-all flex flex-col items-center justify-center text-center group active:scale-95 min-h-[70px]">
                     <p class="text-[10px] md:text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center justify-center gap-1.5 mx-auto">
-                        <span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span>
+                        <svg class="w-4 h-4 shrink-0 text-rose-400 animate-wifi-drop" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                        </svg>
                         <span>Offline</span>
-                        <span id="tick-offline" class="hidden text-rose-400 shrink-0">✔</span>
+                        <span id="tick-offline" class="hidden text-rose-400 font-black shrink-0">✔</span>
                     </p>
                     <h3 id="count-offline" class="text-base md:text-xl font-black text-white mt-0.5 mx-auto">0</h3>
                 </div>
@@ -197,12 +231,12 @@
                     <input type="text" id="chanCategory" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="Entertainment, Sports, Movies">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Stream Source URL *</label>
-                    <textarea id="chanUrl" required rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white custom-scrollbar" placeholder="https://domain.com/live.m3u8"></textarea>
-                </div>
-                <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Logo URL</label>
                     <input type="url" id="chanLogo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white" placeholder="https://domain.com/logo.png">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Stream Source URL (m3u8) *</label>
+                    <textarea id="chanUrl" required rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white custom-scrollbar" placeholder="https://domain.com/live.m3u8"></textarea>
                 </div>
                 <div class="bg-slate-950 -mx-5 -mb-5 p-4 mt-5 flex justify-end gap-2 border-t border-slate-800">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-800 text-slate-400 rounded-xl text-xs font-semibold hover:bg-slate-900 transition-all">Cancel</button>
@@ -213,16 +247,14 @@
     </div>
 
     <script>
-        // ⚠️ আপনার গুগল অ্যাপস স্ক্রিপ্ট ম্যাক্রো ইউআরএল এখানে দিন
         const API_URL = "https://script.google.com/macros/s/AKfycbw6LTxDqmMzRn-5JRNQtXlCZ4j0-bto7nV_y6sYTKpmIWX5XAf2JxwpBv_-Uf0butyH/exec"; 
 
         let allChannels = [];
-        let currentFilter = 'all';
+        let currentFilter = null; 
 
         document.addEventListener('DOMContentLoaded', () => {
             renderLoadingSkeleton();
-            fetchChannels(); // অ্যাপ ওপেন হতেই ইনস্ট্যান্টলি ফ্রেশ ডাটা লোড হবে, কোনো ব্যাকগ্রাউন্ড জ্যাম থাকবে না
-            updateActiveTickmark();
+            fetchChannels(); 
         });
 
         function toggleMenu(event) {
@@ -250,7 +282,8 @@
                 rows += `<tr><td class="py-4 px-5 text-center"><div class="shimmer h-4 rounded w-8 mx-auto"></div></td><td class="py-4 px-5"><div class="shimmer w-10 h-10 rounded-xl"></div></td><td class="py-4 px-5"><div class="shimmer h-4 rounded w-32 mb-2"></div><div class="shimmer h-3 rounded w-56"></div></td><td class="py-4 px-5"><div class="shimmer h-5 rounded-lg w-20"></div></td><td class="py-4 px-5 text-center"><div class="shimmer h-6 rounded-full w-20 mx-auto"></div></td><td class="py-4 px-5 text-center"><div class="shimmer h-8 rounded-xl w-20 mx-auto"></div></td></tr>`;
                 cards += `<div class="bg-slate-900 p-4 rounded-2xl border border-slate-800 space-y-3"><div class="flex items-center gap-3"><div class="shimmer w-11 h-11 rounded-xl shrink-0"></div><div class="flex-1 space-y-2"><div class="shimmer h-4 rounded w-1/3"></div><div class="shimmer h-3 rounded w-2/3"></div></div></div></div>`;
             }
-            tbody.innerHTML = rows; mobileWrapper.innerHTML = cards;
+            if(tbody) tbody.innerHTML = rows; 
+            if(mobileWrapper) mobileWrapper.innerHTML = cards;
         }
 
         async function fetchChannels() {
@@ -258,35 +291,80 @@
                 const response = await fetch(`${API_URL}?action=getChannels`);
                 const result = await response.json();
                 if (result.status === 'success') {
-                    allChannels = result.data;
+                    allChannels = result.data.map(ch => ({...ch, serial: parseInt(ch.serial)}));
+                    allChannels.sort((a, b) => a.serial - b.serial);
+                    
+                    if (currentFilter === null) {
+                        let onlineCount = allChannels.filter(ch => ch.status === 'Online').length;
+                        let offlineCount = allChannels.filter(ch => ch.status !== 'Online').length;
+                        
+                        if (onlineCount > 0) {
+                            currentFilter = 'online';
+                        } else if (offlineCount > 0) {
+                            currentFilter = 'offline';
+                        } else {
+                            currentFilter = 'all';
+                        }
+                    }
+                    
                     updateDashboard();
                 }
             } catch (error) { console.error('API Error'); }
         }
 
-        // 🟢 ম্যানুয়াল সিঙ্ক অপারেশন (বাটনে ক্লিক করলেই কেবল ১ বার রান হবে)
         async function syncStatus() {
+            const btn = document.getElementById('syncBtn');
             const icon = document.getElementById('syncIcon');
             const syncText = document.getElementById('syncText');
+            const liveToast = document.getElementById('syncLiveStatus');
+            const toastMsg = document.getElementById('syncStatusMsg');
             
-            if(icon) icon.classList.add('animate-spin');
-            if(syncText) syncText.innerText = "Syncing Status...";
+            if(icon) icon.classList.add('animate-spin', 'text-indigo-400');
+            if(btn) btn.classList.add('scale-95', 'ring-2', 'ring-indigo-500/50', 'animate-pulse');
+            if(syncText) syncText.innerText = "Syncing...";
+            if(liveToast) liveToast.classList.remove('hidden');
 
             try {
+                if(toastMsg) toastMsg.innerHTML = `⏳ Connecting Engine Infrastructure...`;
+                if (allChannels.length === 0) await fetchChannels();
+                
+                for(let i = 0; i < allChannels.length; i++) {
+                    let ch = allChannels[i];
+                    if(toastMsg) {
+                        if(ch.status === 'Online') {
+                            toastMsg.innerHTML = `<span class="flex items-center gap-2">🔄 Syncing: <span class="text-indigo-400 font-bold">${ch.name}</span> <span class="text-emerald-400 font-black px-1.5 bg-emerald-500/10 rounded border border-emerald-500/20">✔</span></span>`;
+                        } else {
+                            toastMsg.innerHTML = `<span class="flex items-center gap-2">🔄 Syncing: <span class="text-indigo-400 font-bold">${ch.name}</span> <span class="text-rose-400 font-black px-1.5 bg-rose-500/10 rounded border border-rose-500/20">✖</span></span>`;
+                        }
+                    }
+                    await new Promise(r => setTimeout(r, 450)); 
+                }
+
+                if(toastMsg) toastMsg.innerHTML = `🚀 Pushing Live Handshake Core to Cloud Server...`;
+
                 const response = await fetch(API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'syncStatus' }) 
                 });
                 const res = await response.json();
+                
                 if(res.status === 'success') {
-                    await fetchChannels(); // সিঙ্ক শেষে লেটেস্ট স্ট্যাটাস ডাটা রিলোড করবে
+                    if(toastMsg) toastMsg.innerHTML = `✨ <span class="text-emerald-400 font-bold">Configuration Sync Successful!</span> Network stable.`;
+                    await fetchChannels(); 
+                } else {
+                    if(toastMsg) toastMsg.innerHTML = `❌ <span class="text-rose-400 font-bold">Sync Aborted:</span> Server failure.`;
                 }
             } catch (e) { 
                 console.error('Manual sync failed:', e);
-                alert('Sync process timed out or failed. Please check Google Sheet Connection.');
+                if(toastMsg) toastMsg.innerHTML = `❌ <span class="text-rose-400 font-bold">Sync Timeout:</span> Dead connection.`;
             } finally {
                 if(syncText) syncText.innerText = "Sync Status";
                 if(icon) icon.classList.remove('animate-spin');
+                if(btn) btn.classList.remove('scale-95', 'ring-2', 'ring-indigo-500/50', 'animate-pulse');
+                
+                setTimeout(() => {
+                    if(liveToast) liveToast.classList.add('hidden');
+                }, 4000);
             }
         }
 
@@ -311,8 +389,15 @@
 
             ['all', 'online', 'offline'].forEach(t => {
                 const card = document.getElementById(`card-${t}`);
-                if (card) currentFilter === t ? card.classList.add('border-indigo-500/60', 'bg-slate-850') : card.classList.remove('border-indigo-500/60', 'bg-slate-850');
+                if (card) card.classList.remove('border-indigo-500/60', 'bg-slate-900/40', 'border-emerald-500/60', 'border-rose-500/60');
             });
+
+            const activeCard = document.getElementById(`card-${currentFilter}`);
+            if (activeCard) {
+                if (currentFilter === 'online') activeCard.classList.add('border-emerald-500/60', 'bg-slate-900/40');
+                else if (currentFilter === 'offline') activeCard.classList.add('border-rose-500/60', 'bg-slate-900/40');
+                else activeCard.classList.add('border-indigo-500/60', 'bg-slate-900/40');
+            }
 
             updateActiveTickmark();
 
@@ -397,17 +482,38 @@
             const icon = document.getElementById('syncIcon');
             if(icon) icon.classList.add('animate-spin'); 
 
-            const targetSerial = document.getElementById('chanSerial').value;
+            const targetSerial = parseInt(document.getElementById('chanSerial').value);
+            const isEditMode = document.getElementById('oldSerial').value !== '';
+
             const channelPayload = {
                 serial: targetSerial,
                 name: document.getElementById('chanName').value,
                 category: document.getElementById('chanCategory').value,
                 url: document.getElementById('chanUrl').value,
                 logo: document.getElementById('chanLogo').value,
-                oldSerial: document.getElementById('oldSerial').value || null
+                oldSerial: document.getElementById('oldSerial').value ? parseInt(document.getElementById('oldSerial').value) : null
             };
 
             try {
+                // স্মার্ট শিফটিং মেকানিজম (যদি সিরিয়াল ম্যানুয়ালি ওভারল্যাপ করা হয়)
+                if (!isEditMode) {
+                    const serialExists = allChannels.some(ch => ch.serial === targetSerial);
+                    if (serialExists) {
+                        for (let ch of allChannels) {
+                            if (ch.serial >= targetSerial) {
+                                let updatedSerial = ch.serial + 1;
+                                await fetch(API_URL, {
+                                    method: 'POST',
+                                    body: JSON.stringify({
+                                        action: 'addOrEdit',
+                                        channel: { ...ch, serial: updatedSerial, oldSerial: ch.serial }
+                                    })
+                                });
+                            }
+                        }
+                    }
+                }
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     body: JSON.stringify({ action: 'addOrEdit', channel: channelPayload })
@@ -415,7 +521,6 @@
                 const res = await response.json();
                 if(res.status === 'success') {
                     closeModal();
-                    // সিঙ্গেল চ্যানেল ইনস্ট্যান্ট ভ্যালিডেশন 
                     await fetch(API_URL, {
                         method: 'POST',
                         body: JSON.stringify({ action: 'syncStatus', targetId: targetSerial })
@@ -471,7 +576,24 @@
         }
 
         function filterByStatus(type) { currentFilter = type; updateDashboard(); }
-        function openModal() { document.getElementById('channelForm').reset(); document.getElementById('oldSerial').value = ''; document.getElementById('modalTitle').innerText = "Add Channel Configuration"; document.getElementById('channelModal').classList.remove('hidden'); }
+        
+        function openModal() { 
+            document.getElementById('channelForm').reset(); 
+            document.getElementById('oldSerial').value = ''; 
+            document.getElementById('modalTitle').innerText = "Add Channel Configuration"; 
+            
+            // অটো সিরিয়াল এবং ক্যাটাগরি ভ্যালু প্রিপুলেট করা
+            let nextSerial = 1;
+            if (allChannels.length > 0) {
+                const maxSerial = Math.max(...allChannels.map(c => c.serial));
+                nextSerial = maxSerial + 1;
+            }
+            document.getElementById('chanSerial').value = nextSerial;
+            document.getElementById('chanCategory').value = "NOWSHIN";
+            
+            document.getElementById('channelModal').classList.remove('hidden'); 
+        }
+        
         function closeModal() { document.getElementById('channelModal').classList.add('hidden'); }
 
         window.addEventListener('click', function(e){
